@@ -6,10 +6,17 @@ import astropy.units as u
 from particles.particle import Particle
 import grav_field
 
-PARTICLE1 = Particle([0, 3.4, 5.6], [8.6, 2.8, 4], 4)
-PARTICLE2 = Particle([0, 2.4, 4.9], [7.3, 1.1, 3.2], 7)
-print(PARTICLE1, ", Velocity: ", PARTICLE1.velocity())
-print(PARTICLE2, ", Velocity: ", PARTICLE2.velocity().unit.decompose())
-print("Force: ", grav_field.get_force(PARTICLE1, PARTICLE2).to(u.N))
-print("Kinetic Energy: ", PARTICLE1.kinetic_energy().to(u.J))
-print(PARTICLE1.momentum.dot(PARTICLE1.momentum)/(PARTICLE1.mass * 2))
+PARTICLE1 = Particle([0, 6800000, 0], [7.5 * 1000 * 4, 0, 0], 4)
+PARTICLE2 = Particle(mass=(1 * u.M_earth).to(u.kg).value)
+TIMESTEP = 1 * u.s
+
+for i in range(90 * 60):
+    force_12 = grav_field.get_force(PARTICLE1, PARTICLE2)
+    PARTICLE1.apply_force(force_12, TIMESTEP)
+    PARTICLE2.apply_force(-force_12, TIMESTEP)
+    PARTICLE1.move_particle(TIMESTEP)
+    PARTICLE2.move_particle(TIMESTEP)
+    print("Pos1: {}, Pos2: {}, Mom1: {}, Mom2: {}, Mom_Tot: {}".format(
+        PARTICLE1.position, PARTICLE2.position, PARTICLE1.momentum,
+        PARTICLE2.momentum, PARTICLE1.momentum + PARTICLE2.momentum
+    ))
