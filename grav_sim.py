@@ -2,7 +2,6 @@
 Module containing the main code to setup and run the simulation
 """
 
-import astropy
 import astropy.units as u
 from particles.particle import Particle
 import grav_field

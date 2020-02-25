@@ -24,8 +24,10 @@ class Particle:
         Creates a particle with a position, momentum and mass
 
         Arguments:
-        position => The initial position vector of the particle (default [0.0, 0.0, 0.0])
-        momentum => The initial momentum vector of the particle (default [0.0, 0.0, 0.0])
+        position => The initial position vector of the particle
+                    (default [0.0, 0.0, 0.0])
+        momentum => The initial momentum vector of the particle
+                    (default [0.0, 0.0, 0.0])
         mass => The mass of the particle (default 1.0)
         """
 
@@ -33,12 +35,13 @@ class Particle:
         assert mass > 0.0
 
         self.position = np.array(position, dtype=float) * u.m
-        self.momentum = np.array(momentum, dtype=float) * u.kg * u.m / u.s
+        self.momentum = np.array(momentum, dtype=float) * u.N * u.m
         self.mass = mass * u.kg
 
     def __repr__(self):
         """
-        Returns a string containing the mass, position and momentum of the particle
+        Returns a string containing the mass,
+            position and momentum of the particle
         """
         return "Particle: Mass: {0}, Position: {1}, Momentum: {2}".format(
             self.mass, self.position, self.momentum)
@@ -54,3 +57,10 @@ class Particle:
         Calculates and returns the kinetic energy of the particle in J
         """
         return self.momentum.dot(self.momentum) / (2 * self.mass)
+
+    @staticmethod
+    def vector_between(particle1, particle2):
+        """
+        The vector between particle 1 and particle 2
+        """
+        return particle2.position - particle1.position

@@ -31,4 +31,4 @@ def test_kinetic_energy(mom_input, mass_input, expected):
         with a given mass and momentum
     """
     particle = Particle(momentum=mom_input, mass=mass_input)
-    assert (particle.kinetic_energy() == expected)
+    assert particle.kinetic_energy() == expected

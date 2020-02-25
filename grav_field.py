@@ -6,8 +6,9 @@ Positions in m
 Forces in N
 """
 
-from astropy.constants import G # pylint: disable=no-name-in-module
+from astropy.constants import G
 import numpy as np
+from particles.particle import Particle
 
 def get_force(particle1, particle2):
     """
@@ -17,5 +18,6 @@ def get_force(particle1, particle2):
     Returns force in N
     """
 
-    pos_diff = particle2.position - particle1.position
-    return ((G * particle1.mass * particle2.mass) / (np.dot(pos_diff, pos_diff) ** (3/2))) * pos_diff
+    pos_diff = Particle.vector_between(particle1, particle2)
+    return ((G * particle1.mass * particle2.mass) /
+            (np.dot(pos_diff, pos_diff) ** (3/2))) * pos_diff
