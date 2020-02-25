@@ -18,4 +18,4 @@ def get_force(particle1, particle2):
     """
 
     pos_diff = particle2.position - particle1.position
-    return ((G * particle1.mass * particle2.mass)/np.dot(pos_diff, pos_diff)**(3/2))*pos_diff
+    return ((G * particle1.mass * particle2.mass) / (np.dot(pos_diff, pos_diff) ** (3/2))) * pos_diff

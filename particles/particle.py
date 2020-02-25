@@ -4,6 +4,7 @@ Module containing the particle class
 """
 
 import numpy as np
+import astropy.units as u
 
 class Particle:
     """
@@ -31,9 +32,9 @@ class Particle:
         # Reject particles with 0 or negative mass
         assert mass > 0.0
 
-        self.position = np.array(position, dtype=float)
-        self.momentum = np.array(momentum, dtype=float)
-        self.mass = mass
+        self.position = np.array(position, dtype=float) * u.m
+        self.momentum = np.array(momentum, dtype=float) * u.kg * u.m / u.s
+        self.mass = mass * u.kg
 
     def __repr__(self):
         """
@@ -47,3 +48,9 @@ class Particle:
         Calculates and returns the velocity of the particle in m / s
         """
         return self.momentum / self.mass
+
+    def kinetic_energy(self):
+        """
+        Calculates and returns the kinetic energy of the particle in J
+        """
+        return self.momentum.dot(self.momentum) / (2 * self.mass)
