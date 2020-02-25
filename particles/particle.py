@@ -35,7 +35,7 @@ class Particle:
         assert mass > 0.0
 
         self.position = np.array(position, dtype=float) * u.m
-        self.momentum = np.array(momentum, dtype=float) * u.N * u.m
+        self.momentum = np.array(momentum, dtype=float) * u.N * u.s
         self.mass = mass * u.kg
 
     def __repr__(self):
@@ -57,6 +57,25 @@ class Particle:
         Calculates and returns the kinetic energy of the particle in J
         """
         return self.momentum.dot(self.momentum) / (2 * self.mass)
+
+    def move_particle(self, delta_t):
+        """
+        Moves particle along its velocity vector for time delta_t
+        """
+        # Check time is positive
+        assert delta_t > 0.0
+        self.position += self.velocity() * delta_t
+
+    def apply_force(self, force, delta_t):
+        """
+        Updates momentum based on the force being applied and
+            the time step across which it is being applied
+
+        Uses delta_P = F * delta_t
+        """
+        # Check time is positive
+        assert delta_t > 0.0
+        self.momentum += force * delta_t
 
     @staticmethod
     def vector_between(particle1, particle2):
