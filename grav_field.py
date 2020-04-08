@@ -30,7 +30,7 @@ def get_force(particle1, particle2):
     
     # Soften force if particles are close
     if distance.value < 1e19:
-        print(pos_diff, distance)
+        #print(pos_diff, distance)
         force = force * (distance / (1e19 * u.m)) ** 3
     
     return force
