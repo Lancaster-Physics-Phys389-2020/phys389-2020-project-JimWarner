@@ -110,7 +110,7 @@ def get_results(pool):
     loops = 0
     force_list = []
     
-    #print("GETTING RESULTS")
+    print("GETTING RESULTS")
     
     trans_start=time.time()
     while len(force_list) < pool._processes:
@@ -145,7 +145,7 @@ def get_energy_results(pool):
     loops = 0
     pe_list = []
     
-    #print("GETTING ENERGY RESULTS")
+    print("GETTING ENERGY RESULTS")
     
     trans_start=time.time()
     while len(pe_list) < pool._processes:
@@ -186,7 +186,7 @@ def record_energy(pool, timecode):
     
     total_energy = total_ke + total_pe
     
-    energy_list.append([timecode, total_energy])
+    energy_list.append([timecode, total_ke, total_pe])
     calc_end = time.time()
     print("Calculation took: {}s".format(calc_end - calc_start))
     
@@ -203,7 +203,7 @@ def apply_forces(pool, timestep):
     
     send_data(pool)
     
-    #print("APPLY FORCES")
+    print("APPLY FORCES")
     
     pool.imap(get_forces, range(len(particles)))
     
@@ -233,15 +233,24 @@ def write_image(particles, t):
     
 def check_forces(pool, timecode):
     global particles
+    global particle_count
 
+    sample_size = 100
+    
     send_data(pool)
 
-    #print("CHECKING FORCES")
-    
-    indices = random.sample(range(len(particles)), 100)
+    print("CHECKING FORCES")
+
+    if sample_size > particle_count:
+        sample_size = particle_count
+
+    print(sample_size, particle_count // 2)
+    print(len(particles))
+        
+    indices = random.sample(range(len(particles)), sample_size)
     #print(indices)
 
-    pool.map(get_forces_raw, indices)
+    pool.imap(get_forces_raw, indices)
     results = []
     for arr in get_results(pool):
         results += arr
@@ -270,6 +279,7 @@ if __name__ == '__main__':
     processes = 12#multiprocessing.cpu_count()#
     if not (processes % 2 == 0):
         print("There must be an even number of processes")
+        sys.exit(-1)
 
     #tree = OctTree(radius = 1000)
     #p1 = Particle([1, 1, 1])
@@ -281,7 +291,10 @@ if __name__ == '__main__':
     particle_count = 200
 
     # Guarantees the number of particles divides by the number of processes
-    particles_per_galaxy = int((particle_count + processes - particle_count % processes) / 2)
+    particle_count = particle_count + processes - particle_count % processes
+    particles_per_galaxy = particle_count // 2
+
+    
 
     print("Modelling with {} particles".format(particles_per_galaxy * 2))
     
@@ -294,6 +307,9 @@ if __name__ == '__main__':
     gal1 = Elliptical(particle_count=particles_per_galaxy, position=[5e20, 5e20, 5e20])
     gal2 = Elliptical(particle_count=particles_per_galaxy, position=[-5e20, -5e20, -5e20])
     particles = gal1.particles + gal2.particles
+
+    print(len(particles))
+    
     #tree_end = time.time()
     #print("Init took: {}s".format(tree_end - tree_start))
 
@@ -329,9 +345,9 @@ if __name__ == '__main__':
     #sys.exit(0)
     
     TIMESTEP = (1e6 * u.yr).to(u.s)
-    LENGTH = 500
+    LENGTH = 20
     RADIUS = 1e22
-    ENERGY_INTERVAL = 10
+    ENERGY_INTERVAL = 1
 
     ret_queue=multiprocessing.Queue()
     particle_queue=multiprocessing.Queue()
@@ -432,7 +448,7 @@ if __name__ == '__main__':
 
             mom_list.append([(t + 1) * TIMESTEP.to(u.yr).value, np.sum(momentums[0]) + np.sum(momentums[1]) + np.sum(momentums[2])])
 
-            if t % 10 == 0:
+            if t % ENERGY_INTERVAL == 0:
                 record_energy(pool, t * TIMESTEP.to(u.yr).value)
         
             #print("Time: {:.04}, COM: {:.04}, Total Mom: {}, P0: {}".format((t * TIMESTEP).to(u.yr), positions.mean(), [np.sum(momentums[0]), np.sum(momentums[1]), np.sum(momentums[2])], particles[1]))
@@ -460,7 +476,9 @@ if __name__ == '__main__':
     ax2 = fig2.add_subplot(111)
 
     energy_list = np.array(energy_list).T
+    ax2.plot(energy_list[0], energy_list[1] + energy_list[2])
     ax2.plot(energy_list[0], energy_list[1])
+    ax2.plot(energy_list[0], energy_list[2])
 
     force_factor_list = np.array(force_factor_list).T
     fig3 = plt.figure()

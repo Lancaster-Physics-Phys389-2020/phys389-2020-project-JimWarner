@@ -20,19 +20,18 @@ def get_force(particle1, particle2):
     """
 
     pos_diff = Particle.vector_between(particle1, particle2)
+    distance = np.sqrt(pos_diff.dot(pos_diff))
 
     # If particles in the exact same place return 0
     if (pos_diff == 0.0).all():
         return np.array([0.0] * 3)
 
-    force = ((G * particle1.mass * particle2.mass) /
-             (np.dot(pos_diff, pos_diff) ** (3/2))) * pos_diff 
+    force = ((G * particle1.mass * particle2.mass) / (distance ** 3)) * pos_diff 
     
     # Soften force if particles are close
-    #if (np.abs(pos_diff.value) < 3e16).all():
-    #    distance = np.sqrt(pos_diff[0] ** 2 + pos_diff[1] ** 2 + pos_diff[2] ** 2)
-    #    print(pos_diff, distance)
-    #    force = force * (distance / (3e16 * u.m)) ** 3
+    if distance.value < 1e19:
+        print(pos_diff, distance)
+        force = force * (distance / (1e19 * u.m)) ** 3
     
     return force
 

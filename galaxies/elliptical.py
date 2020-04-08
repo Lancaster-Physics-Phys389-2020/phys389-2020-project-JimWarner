@@ -30,7 +30,7 @@ class Elliptical(Galaxy):
 
         #particles.append(Particle([0.0, 0.0, 0.0], mass=galaxy_mass*0.1, momentum=[0.0, 0.0, 0.0]))
         
-        for i in range(1, self.particle_count):
+        for i in range(self.particle_count):
             phi = random.random()*2*np.pi
             costheta = random.random() * 2 - 1
             theta = np.arccos(costheta)
