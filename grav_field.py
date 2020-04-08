@@ -7,6 +7,7 @@ Forces in N
 """
 
 from astropy.constants import G
+import astropy.units as u
 import numpy as np
 from particles.particle import Particle
 
@@ -19,8 +20,21 @@ def get_force(particle1, particle2):
     """
 
     pos_diff = Particle.vector_between(particle1, particle2)
-    return ((G * particle1.mass * particle2.mass) /
-            (np.dot(pos_diff, pos_diff) ** (3/2))) * pos_diff
+
+    # If particles in the exact same place return 0
+    if (pos_diff == 0.0).all():
+        return np.array([0.0] * 3)
+
+    force = ((G * particle1.mass * particle2.mass) /
+             (np.dot(pos_diff, pos_diff) ** (3/2))) * pos_diff 
+    
+    # Soften force if particles are close
+    #if (np.abs(pos_diff.value) < 3e16).all():
+    #    distance = np.sqrt(pos_diff[0] ** 2 + pos_diff[1] ** 2 + pos_diff[2] ** 2)
+    #    print(pos_diff, distance)
+    #    force = force * (distance / (3e16 * u.m)) ** 3
+    
+    return force
 
 def get_potential_energy(particle1, particle2):
     """
@@ -31,3 +45,15 @@ def get_potential_energy(particle1, particle2):
     pos_diff = Particle.vector_between(particle1, particle2)
     return -1 * (G * particle1.mass * particle2.mass) / np.sqrt(
         np.dot(pos_diff, pos_diff))
+
+def get_centre_of_mass(particles):
+    """
+    Calculates the centre of mass of a list of particles
+
+    Assumes that the particle are all of equal mass
+    """
+
+    positions = np.array([i.position.value for i in particles]).T
+    #print(positions)
+    com = np.array([positions[0].mean(), positions[1].mean(), positions[2].mean()])
+    return com * u.m

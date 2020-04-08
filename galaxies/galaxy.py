@@ -4,6 +4,7 @@ Module containing the base galaxy abstract class which the other galaxy classes 
 
 from abc import ABC, abstractmethod
 import numpy as np
+import astropy.units as u
 
 class Galaxy(ABC):
     """
@@ -18,19 +19,12 @@ class Galaxy(ABC):
         assert particle_count > 0
         
         self.particle_count = particle_count
-        self.position = np.array(position, dtype=float)
+        self.position = np.array(position, dtype=float) * u.m
         self.particles = self.init_particles()
 
     @abstractmethod
     def init_particles(self):
         """
         Calculates the locations and types of particles in the galaxy and returns a list containing the particles
-        """
-        pass
-
-    @staticmethod
-    def iterate_simulation(galaxy1, galaxy2):
-        """
-        Calls the functions which iterate the simulation
         """
         pass
