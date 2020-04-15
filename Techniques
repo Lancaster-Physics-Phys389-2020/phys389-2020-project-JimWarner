@@ -1,0 +1,59 @@
+------------------------------------------------------------------------------
+
+Packages:
+
+astropy
+    Used to get the gravitational constant
+    and to use the units to allow easy conversions
+
+numpy
+    For use of np.array to hold the vectors used for the position and
+    momentum of the particles as well as the extra utilities that come
+    with them to manipulate data before putting in in graphs or dataframes
+    Also used the gradient function in the particle mesh calculations
+    and got the fast fourier transform functions from numpy
+
+matplotlib
+    Used to plot graphs of energy, momentum and force at the end of the
+    simulation
+
+pandas
+    Used to write the produced data to a dataframe and then a .csv file so
+    it could be easily extracted and looked at in more detail after the
+    simulation had finished
+    
+pypng
+    Used to produce the images that track the location of the particles
+
+------------------------------------------------------------------------------
+
+Techniques:
+
+Abstract Class
+    The Galaxy class is an abstract class that the Elliptical class
+    inherits from.
+
+Data Frames
+    The data produced by the simulation is added to a pandas dataframe
+    before it is written to the file
+
+Recursion
+    The methods traverse the octtree by calling themselves recursively
+    on smaller sections 
+
+Command Line Arguments
+    The program is controlled by provinding it with arguments on the command
+    line when called which are then parsed by the argparse module 
+
+Multiprocessing
+    The main sections of both the brute force and octtree calculations
+    use the built in python multiprocessing module allowing them to run
+    on multiple particles in parallel and therefore drastically increase the
+    speed of the simulation
+
+Testing
+    The Particle class and grav_field functions both have a collection of
+    tests in files named test_<name_of_file>.py these tests are run by
+    pytest
+
+------------------------------------------------------------------------------

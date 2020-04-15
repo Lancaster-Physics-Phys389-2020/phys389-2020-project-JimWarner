@@ -1,14 +1,12 @@
 """
-Module contains the OctTree class and the Barnes-Hut approximation method
+Module containing the OctTree class and the Barnes-Hut approximation method
     which uses it.
 """
 
 import numpy as np
+import astropy.units as u
 import grav_field
 from particles.particle import Particle
-import astropy.units as u
-
-import sys
 
 class OctTree:
     """
@@ -41,35 +39,33 @@ class OctTree:
             if (np.abs(particle.position).value < self.radius).all():
                 self.insert_particle(particle)
 
-        #print("Layer: ", self.layer, self.particle)
-        #self.print_tree()
-                
         # Tidy up empty nodes
         self.kill_empty_leaves()
         self.compute_masses()
 
     def get_new_centre(self, i):
         """
-        Calculates and returns the coordinates of the centre of the child node with the provided index
+        Calculates and returns the coordinates of the centre of the child
+            node with the provided index
         """
         new_centre = [self.centre[0], self.centre[1], self.centre[2]]
         if i & 4 == 4:
             new_centre[0] += self.radius * 0.5
         else:
             new_centre[0] -= self.radius * 0.5
-            
+
         if i & 2 == 2:
             new_centre[1] += self.radius * 0.5
         else:
             new_centre[1] -= self.radius * 0.5
-            
+
         if i & 1 == 1:
             new_centre[2] += self.radius * 0.5
         else:
             new_centre[2] -= self.radius * 0.5
 
         return new_centre
-            
+
     def insert_particle(self, particle):
         """
         Inserts a single particle into the tree.
@@ -123,16 +119,18 @@ class OctTree:
                 #     need to replace with com particle
                 old_particle = self.particle
                 total_mass = particle.mass + old_particle.mass
-                com = (particle.position * particle.mass + old_particle.position * old_particle.mass) / total_mass
-                self.particle = Particle(position=com.value, mass=total_mass.value)
-                
+                com = (particle.position * particle.mass +
+                       old_particle.position * old_particle.mass) / total_mass
+                self.particle = Particle(position=com.value,
+                                         mass=total_mass.value)
+
                 # Create and insert particles into child nodes
                 old_octant = self.get_octant_containing_particle(old_particle)
                 new_centre = self.get_new_centre(old_octant)
                 self.children[old_octant] = OctTree(centre=new_centre,
                                                     radius=(self.radius / 2.0))
                 self.children[old_octant].insert_new_particle(old_particle)
-                
+
                 octant = self.get_octant_containing_particle(particle)
                 new_centre = self.get_new_centre(octant)
                 self.children[octant] = OctTree(centre=new_centre,
@@ -142,18 +140,18 @@ class OctTree:
             # If not a leaf node add to com particle and move on
             old_particle = self.particle
             total_mass = particle.mass + old_particle.mass
-            com = (particle.position * particle.mass + old_particle.position * old_particle.mass) / total_mass
-            self.particle.position=com.value * u.m
-            self.particle.mass=total_mass.value * u.kg
+            com = (particle.position * particle.mass +
+                   old_particle.position * old_particle.mass) / total_mass
+            self.particle.position = com.value * u.m
+            self.particle.mass = total_mass.value * u.kg
 
             octant = self.get_octant_containing_particle(particle)
             # If child is uninitialised need to initialise it
             if self.children[octant] is None:
                 new_centre = self.get_new_centre(octant)
-                self.children[octant] = OctTree(centre=new_centre, radius=(self.radius/2.0))
+                self.children[octant] = OctTree(centre=new_centre,
+                                                radius=(self.radius/2.0))
             self.children[octant].insert_new_particle(particle)
-
-            
 
     def compute_masses(self):
         """
@@ -167,11 +165,12 @@ class OctTree:
                 # Ignore uninitialised nodes
                 if self.children[i] is None:
                     continue
-                
+
                 # Run on child nodes
                 self.children[i].compute_masses()
                 total_mass += self.children[i].particle.mass.value
-                pos += self.children[i].particle.mass.value * self.children[i].particle.position.value
+                pos += (self.children[i].particle.mass.value *
+                        self.children[i].particle.position.value)
 
             self.particle = Particle(position=(pos / total_mass),
                                      mass=total_mass)
@@ -194,8 +193,6 @@ class OctTree:
         if pos[2] >= self.centre[2]:
             octant |= 1
 
-        #print(octant)
-        
         return octant
 
     def is_leaf_node(self):
@@ -225,8 +222,6 @@ class OctTree:
         """
         Assignes all unused leaf nodes to None to allow easier checking.
         """
-        #print(self.children)
-        
         for i in range(len(self.children)):
             # Only called at end of initialisation so can use quick check
             if self.children[i].is_leaf_node_quick():
@@ -242,15 +237,10 @@ def barnes_hut_approximation(node, particle):
     Calculates the force on a particle from all the other particles in the
         provided octtree using the barnes hut approximation.
     """
-
     # Approximation parameter
     theta = 0.5
     total_force = np.array([0.0, 0.0, 0.0]) * u.N
-    #distance_to_particle = 0.0
 
-    #if (np.abs(particle.position).value > node.radius).any():
-    #    return np.array([0.0, 0.0, 0.0]) * u.N
-    
     if node.is_leaf_node():
         # Calculate the force from the one particle
         total_force += grav_field.get_force(particle, node.particle)

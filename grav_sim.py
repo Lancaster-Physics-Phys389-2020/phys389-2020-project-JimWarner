@@ -7,10 +7,10 @@ import gal_sim
 import uni_sim
 
 if __name__ == "__main__":
-    args = parse_arguments()
+    ARGS = parse_arguments()
 
-    if args.simulation == "g":
-        gal_sim.run(args)
+    if ARGS.simulation == "g":
+        gal_sim.run(ARGS)
 
-    if args.simulation == "u":
-        uni_sim.run(args)
+    if ARGS.simulation == "u":
+        uni_sim.run(ARGS)

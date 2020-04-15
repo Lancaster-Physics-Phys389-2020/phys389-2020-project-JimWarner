@@ -26,13 +26,12 @@ def get_force(particle1, particle2):
     if (pos_diff == 0.0).all():
         return np.array([0.0] * 3)
 
-    force = ((G * particle1.mass * particle2.mass) / (distance ** 3)) * pos_diff 
-    
+    force = ((G * particle1.mass * particle2.mass) / (distance ** 3)) * pos_diff
+
     # Soften force if particles are close
     if distance.value < 1e19:
-        #print(pos_diff, distance)
         force = force * (distance / (1e19 * u.m)) ** 3
-    
+
     return force
 
 def get_potential_energy(particle1, particle2):
@@ -53,6 +52,9 @@ def get_centre_of_mass(particles):
     """
 
     positions = np.array([i.position.value for i in particles]).T
-    #print(positions)
-    com = np.array([positions[0].mean(), positions[1].mean(), positions[2].mean()])
+    com = np.array([
+        positions[0].mean(),
+        positions[1].mean(),
+        positions[2].mean()
+    ])
     return com * u.m

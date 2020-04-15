@@ -1,21 +1,26 @@
+"""
+Module containing the functions required to handle the command line arguments
+"""
+
 import argparse
 import multiprocessing
-import sys
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Run some simulations")
+    """
+    Parses the command line arguments using the argparse package and returns
+        the results as a single object`
+    """
+    parser = argparse.ArgumentParser(
+        description="Runs n-body gravitational simulations of either the " +
+        "collision between two elliptical galaxies or the evolution of the " +
+        "universe over a large scale. The galaxy collision simulation " +
+        "calculates the forces using tree codes and the universe simulation " +
+        "uses the particle mesh method."
+    )
 
-    #sims = parser.add_argument_group("Simulations")
-    #parser.add_mutually_exclusive_group(required=True)
-    #sims.add_argument("g",# "galaxies",
-                      #help="Run the galaxy collision simulation",
-                      #action="store_true")
-    #sims.add_argument("u",# "universe",
-                      #help="Run the universe evolution simulation",
-                      #action="store_true")
-    
     parser.add_argument("simulation",
-                        help="The simulation to be run. g=Galaxy Collision, u=Universe evolution",
+                        help="The simulation to be run. " +
+                        "g=Galaxy Collision, u=Universe evolution",
                         choices=["g", "u"])
 
     parser.add_argument("particle_no",
@@ -29,9 +34,10 @@ def parse_arguments():
     parser.add_argument("length",
                         help="The length of the simulation in timesteps",
                         type=int)
-    
+
     parser.add_argument("-p", "--processes",
-                        help="The number of processes the program can use",
+                        help="The number of processes the program can use. " +
+                        "Defaults to the number of logical cores.",
                         type=int,
                         default=multiprocessing.cpu_count())
 
@@ -40,32 +46,39 @@ def parse_arguments():
                         action="store_true")
 
     parser.add_argument("-e", "--energy",
-                        help="Record the kinetic and potential energy every ENERGY_INTERVAL timesteps and plot them in a graph",
+                        help="Record the kinetic and potential energy " +
+                        "every ENERGY_INTERVAL timesteps and plot them " +
+                        "in a graph",
                         dest="energy_interval",
                         type=int)
-    
+
     parser.add_argument("-f", "--force",
-                        help="Calculate the accuracy of the forces as a fraction and plot this in a graph",
+                        help="Calculate the accuracy of the forces as " +
+                        "a fraction and plot this in a graph",
                         action="store_true")
 
     parser.add_argument("-t", "--time",
                         dest="time_interval",
-                        help="Calculates the time taken for the force calculations at points throughout the simulation seperated by TIME_INTERVAL timesteps",
+                        help="Calculates the time taken for the force " +
+                        "calculations at points throughout the simulation " +
+                        "seperated by TIME_INTERVAL timesteps",
                         type=int)
-    
+
     parser.add_argument("-i", "--images",
                         help="Save an image of the particles for each timestep",
                         action="store_true")
 
     parser.add_argument("-s", "--save",
                         dest="save_interval",
-                        help="Writes the particle data to sim_data.csv every SAVE_INTERVAL timesteps.",
+                        help="Writes the particle data to sim_data.p files " +
+                        "every SAVE_INTERVAL timesteps. RECOMMENDED",
                         type=int)
 
     parser.add_argument("-r", "--resume",
-                        help="Resumes a stopped run by reading the files previously written by the save flag",
+                        help="Resumes a stopped run by reading the files " +
+                        "previously written by the save flag",
                         action="store_true")
 
     args = parser.parse_args()
-    
+
     return args
