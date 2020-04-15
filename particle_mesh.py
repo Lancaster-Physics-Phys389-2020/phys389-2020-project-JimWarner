@@ -48,7 +48,7 @@ class ParticleMesh:
             self.grid[base_x + 1][base_y + 1][base_z    ] += mass * split[6]
             self.grid[base_x + 1][base_y + 1][base_z + 1] += mass * split[7]
 
-        self.grid = 4 * np.pi * self.grid
+        self.grid = self.grid / np.sum(self.grid)
 
     def calculate_potential(self):
         """
@@ -89,31 +89,9 @@ class ParticleMesh:
         Uses the gradient of the potential calculated by self.calculate_potential()
         """
 
-        #print("Calculating force")
-
-        #print(self.grid)
+        # Transposed as the gradient is returned as 3 arrays for the 3 dimentions
         self.grid = -1 * np.array(np.gradient(self.grid), dtype=np.double).T / (self.grid_length)
-        #self.grid = self.grid / np.sum(self.grid)
 
-        #grid = np.array([[[[0.0] * 3] * self.grid_points] * self.grid_points] * self.grid#_points)
-        #force = np.array([0.0] * 3)
-        #for i in range(1, self.grid_points - 1):
-        #    for j in range(1, self.grid_points - 1):
-        #        for k in range(1, self.grid_points - 1):
-        #            force[0] = self.grid[i + 1][j][k] - self.grid[i - 1][j][k]
-        #            force[1] = self.grid[i][j + 1][k] - self.grid[i][j - 1][k]
-        #            force[2] = self.grid[i][j][k + 1] - self.grid[i][j][k - 1]
-        #            force = force / (-2 * self.grid_length)
-        #            grid[i][j][k] = np.array(force)
-        # 
-        #for i in [0, self.grid_points - 1]:
-        #    for j in [0, self.grid_points - 1]:
-        #        for k in [0, self.grid_points - 1]:
-        #            grid[i][j][k] = np.array([0.0, 0.0,0.0])
-        # 
-        #self.grid = grid
-
-        #print(self.grid)
                     
     def get_forces(self, particles):
         """
@@ -126,6 +104,7 @@ class ParticleMesh:
         for particle in particles:
             # Check particle is not outside box
             if (np.abs(particle.position).value > self.radius).any():
+                #print(particle.position)
                 continue
             
             # Base is the grid point closest to 0 adjacent to the particle
@@ -136,8 +115,8 @@ class ParticleMesh:
 
             split = self.get_grid_split(particle)
 
-            print(split)
-            print(np.sum(split))
+            #print(split)
+            #print(np.sum(split))
 
             force = np.array([0.0] * 3)
             force += self.grid[base_x    ][base_y    ][base_z    ] * split[0]
@@ -149,9 +128,9 @@ class ParticleMesh:
             force += self.grid[base_x + 1][base_y + 1][base_z    ] * split[6]
             force += self.grid[base_x + 1][base_y + 1][base_z + 1] * split[7]
 
-            force = force * u.N * particle.mass.value
+            force = force * u.N * particle.mass.value * 1e16
 
-            print(force)
+            #print(force)
             
             forces.append(force)
 

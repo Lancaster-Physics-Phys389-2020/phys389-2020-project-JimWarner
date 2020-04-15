@@ -57,13 +57,14 @@ def parse_arguments():
                         help="Save an image of the particles for each timestep",
                         action="store_true")
 
-    parser.add_argument("-w", "--write",
-                        dest="write_interval",
-                        help="Writes the particle data to sim_data.csv every WRITE_INTERVAL timesteps.",
+    parser.add_argument("-s", "--save",
+                        dest="save_interval",
+                        help="Writes the particle data to sim_data.csv every SAVE_INTERVAL timesteps.",
                         type=int)
 
-    parser.add_argument("-r", "--read",
-                        help="Reads initial conditions from .csv file")
+    parser.add_argument("-r", "--resume",
+                        help="Resumes a stopped run by reading the files previously written by the save flag",
+                        action="store_true")
 
     args = parser.parse_args()
     

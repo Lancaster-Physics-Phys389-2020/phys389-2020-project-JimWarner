@@ -225,7 +225,8 @@ class OctTree:
         """
         Assignes all unused leaf nodes to None to allow easier checking.
         """
-
+        #print(self.children)
+        
         for i in range(len(self.children)):
             # Only called at end of initialisation so can use quick check
             if self.children[i].is_leaf_node_quick():
