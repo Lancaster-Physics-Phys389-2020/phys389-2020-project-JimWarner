@@ -11,7 +11,7 @@ class Particle:
     Class to model a massive particle in a gravitational field.
     Uses numpy arrays to store the position amd momentum
 
-    Stores velocity as momentum as it is relativistically invariant?
+    Stores velocity as momentum
 
     mass in kg
     position in m
@@ -62,8 +62,6 @@ class Particle:
         """
         Moves particle along its velocity vector for time delta_t
         """
-        # Check time is positive
-        assert delta_t > 0.0
         self.position += self.velocity() * delta_t
 
     def apply_force(self, force, delta_t):
@@ -73,8 +71,6 @@ class Particle:
 
         Uses delta_P = F * delta_t
         """
-        # Check time is positive
-        assert delta_t > 0.0
         self.momentum += force * delta_t
 
     @staticmethod

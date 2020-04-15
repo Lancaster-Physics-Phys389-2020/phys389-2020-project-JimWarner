@@ -1,0 +1,148 @@
+------------------------------------------------------------------------------
+
+This program allows the user to run n-body gravitational simulations with
+the forces calculated using either tree codes or the particle mesh method
+
+------------------------------------------------------------------------------
+
+PREREQUISITES
+There are several extra packages required to run the simulations:
+    astropy
+    pypng
+    pandas
+    matplotlib
+
+These packages and their requirements can be installed using the command
+      pip install astropy pypng pandas matplotlib 
+
+------------------------------------------------------------------------------
+
+TESTING
+Some tests are included with the main program which can be run using pytest
+which can be installed with the command
+      pip install pytest
+
+------------------------------------------------------------------------------
+
+USAGE
+
+python grav_sim.py [-hmfir] [-p PROCESSES] [-e ENERGY_INTERVAL]
+       		   [-t TIME_INTERVAL] [-s SAVE_INTERVAL]
+                   {g,u} particle_no timestep length
+
+Run some simulations
+
+positional arguments:
+  {g,u}                 The simulation to be run. g=Galaxy Collision,
+  			    u=Universe evolution
+  particle_no           The number of particles used in the simulation
+  timestep              The length of each timestep in years
+  length                The length of the simulation in timesteps
+
+optional arguments:
+  -h, --help            Prints the help message
+  -p PROCESSES, --processes PROCESSES
+                        The number of processes the program can use
+			    Defaults to the number of logical cores
+  -m, --momentum        Record the momentum and plot it in a graph
+  -e ENERGY_INTERVAL, --energy ENERGY_INTERVAL
+                        Record the kinetic and potential energy every
+			    ENERGY_INTERVAL timesteps and plot them
+			    in a graph
+  -f, --force           Calculate the accuracy of the forces as a
+      			    fraction and plot this in a graph
+  -t TIME_INTERVAL, --time TIME_INTERVAL
+                        Calculates the time taken for the force
+			    calculations at points throughout the
+                            simulation seperated by TIME_INTERVAL
+			    timesteps
+  -i, --images          Save an image of the particles for each
+      			    timestep
+  -s SAVE_INTERVAL, --save SAVE_INTERVAL
+                        Writes the particle data to sim_data.csv
+			    every SAVE_INTERVAL timesteps.
+  -r, --resume          Resumes a stopped run by reading the files
+      			    previously written by the save flag
+
+e.g.
+	This command:
+
+	python grav_sim.py g 300 1e6 400 -mfip12 -s3
+
+	will run the galaxy collision simulation with 300 particles, a
+	timestep of 10^6 years for 400 timesteps while recording the
+	momentum and forces and writing an image at every timestep
+	using 12 processes to do the calculations and saving every
+	3 timesteps
+
+It is recommended to use the save flag with a value less than 10
+if running an unstable version of python or in an unstable
+environment
+
+------------------------------------------------------------------------------
+
+FILES
+
+grav_sim.py
+    Contains the entry point to the program and calls the parse_arguments
+    function in arguments.py then calls the run function in either
+    gal_sim.py or univ_sim.py
+
+arguments.py
+    Contains the parse_arguments function which uses the argparse module
+    to interpret the command line arguments
+
+grav_sim.py
+    Contains the code required for only the galaxy collision simulation
+
+uni_sim.py
+    Contains the code required for only the universe simulation
+
+sim.py
+    Contains the code required by both the simulations and also holds
+    the definitions of all the global variables used to transfer data
+    between the processes as each process has its own unique copy of
+    all the globals
+
+octtree.py
+    Contains the OctTree class, which manages the creation and control
+    of the octtrees, and the Barnes-Hut approximation function, which
+    uses the octtrees to calculate forces
+
+particle_mesh.py
+    Contains the ParticleMesh class which manages all the functionality
+    of the class from creation to force calculation
+
+grav_field.py
+    Contains the functions required to model the forces and energies
+    in a gravitational field
+
+universe.py
+    Contains the code required to initialise the universe simulation
+
+galaxies/galaxy.py
+    Contains the abstract Galaxy class which contains the __init__
+    function which initialises the parameters and calls the
+    init_particles abstract method
+
+galaxies/elliptical.py
+    Contains the Elliptical class which inherits from the Galaxy class
+    and impliments its init_particles method to initialise the
+    particles in a way that appears like an elliptical galaxy
+
+particles/particle.py
+    Contains the Particle class which controls the creation and
+    modification of particles
+
+------------------------------------------------------------------------------
+
+See Techniques for the packages and techniques used
+
+This package also includes a video which was created using the images
+produced by
+	 python grav_sim.py g 1000 5e5 760 -i
+and made into a video using 
+    	 ffmpeg -r 30 -pattern_type glob -i 'frames/gal_sim_p1008_t500000.0 s_l760_pic*.png' -crf 0 video.mp4
+	 
+Tested on macos homebrew python 3.7.6
+James Warner 2020
